@@ -67,3 +67,25 @@ vector<pair< set<string> , set<string> >> minimalCover(vector<pair< set<string> 
     }
     return minimalCover;
 }
+
+//module 3: test for 2NF
+
+//get key
+set<string> getCandidateKey(vector<pair< set<string> , set<string> >> minFdSet){
+    set<string> candidateKey;
+set<string> attributes;
+for(auto fd : minFdSet){
+    attributes.insert(fd.first.begin(), fd.first.end());
+    attributes.insert(fd.second.begin(), fd.second.end());
+}
+for(auto a : attributes){
+    set<string> temp = attributes;
+    temp.erase(a);
+    set<string> closureTemp = closure(temp, minFdSet);
+    if(closureTemp != attributes){
+        candidateKey.insert(a);
+    }
+}
+
+    return candidateKey;
+}
