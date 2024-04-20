@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-//module 1: closure of a set of attributes
+//module 1: closure of a set of attributes ----------------------------------------
 set<string> closure(set<string> X, vector<pair< set<string> , set<string> >> fdSet){
     set<string> closure;
     closure = X;
@@ -23,6 +23,7 @@ set<string> closure(set<string> X, vector<pair< set<string> , set<string> >> fdS
     }
     return closure;
 }
+//-----------------------------------------------------------------------------------
 
 //module 2: find the minimal cover of an fdSet
 vector<pair< set<string> , set<string> >> minimalCover(vector<pair< set<string> , set<string> >> fdSet){
@@ -67,6 +68,7 @@ vector<pair< set<string> , set<string> >> minimalCover(vector<pair< set<string> 
     }
     return minimalCover;
 }
+//-----------------------------------------------------------------------------------
 
 //module 3: test for 2NF
 
@@ -88,4 +90,45 @@ for(auto a : attributes){
 }
 
     return candidateKey;
+}
+//--------------------
+
+//check if 2NF - if lhs of fd is a PROPER subset of candidate key
+bool is2NF(vector<pair< set<string> , set<string> >> minFdSet){
+    set<string> candidateKey = getCandidateKey(minFdSet);
+    for(auto fd : minFdSet){
+        if(fd.first.size() < candidateKey.size() &&  includes(candidateKey.begin(), candidateKey.end(), fd.first.begin(), fd.first.end())){
+            return false;
+        }
+    }
+    return true;
+}
+//-----------------------------------------------------------------------------------
+
+//module 4: test for 3NF
+
+//no transitive dependencies ie: non-prime attributes should not determine another non-prime attribute
+
+bool is3NF(vector<pair< set<string> , set<string> >> minFdSet){
+    if(!is2NF(minFdSet)){
+        return false;
+    }
+
+    set<string> candidateKey = getCandidateKey(minFdSet);
+    set<string> nonPrimeAttributes;
+    set<string> allAttributes;
+    for(auto fd : minFdSet){
+        allAttributes.insert(fd.first.begin(), fd.first.end());
+        allAttributes.insert(fd.second.begin(), fd.second.end());
+    }
+    set_difference(allAttributes.begin(), allAttributes.end(), candidateKey.begin(), candidateKey.end(), inserter(nonPrimeAttributes, nonPrimeAttributes.begin()));
+    for(auto fd : minFdSet){
+        if(nonPrimeAttributes.find(*fd.first.begin()) != nonPrimeAttributes.end()){
+            set<string> closureTemp = closure(fd.first, minFdSet);
+            if(includes(closureTemp.begin(), closureTemp.end(), fd.second.begin(), fd.second.end())){
+                return false;
+            }
+        }
+    }
+    return true;
 }
