@@ -132,3 +132,29 @@ bool is3NF(vector<pair< set<string> , set<string> >> minFdSet){
     }
     return true;
 }
+
+//-----------------------------------------------------------------------------------
+
+//module 5: decomposition into a set of fdSets
+
+//-----------------------------------------------------------------------------------
+
+//module 6: lossless join check for a decomposition (on relationSet, and the min cover of fdSet)
+bool isLosslessJoin(vector <set<string>> relationSet, vector<pair< set<string> , set<string> >> minFdSet){
+    set<string> allAttributes;
+    for(auto r : relationSet){
+        allAttributes.insert(r.begin(), r.end());
+    }
+    set<string> candidateKey = getCandidateKey(minFdSet);
+    set<string> nonPrimeAttributes;
+    set_difference(allAttributes.begin(), allAttributes.end(), candidateKey.begin(), candidateKey.end(), inserter(nonPrimeAttributes, nonPrimeAttributes.begin()));
+    for(auto fd : minFdSet){
+        if(nonPrimeAttributes.find(*fd.first.begin()) != nonPrimeAttributes.end()){
+            set<string> closureTemp = closure(fd.first, minFdSet);
+            if(includes(closureTemp.begin(), closureTemp.end(), fd.second.begin(), fd.second.end())){
+                return true;
+            }
+        }
+    }
+    return false;
+}
